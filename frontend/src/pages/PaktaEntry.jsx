@@ -59,7 +59,7 @@ export default function PaktaEntry() {
 
   return (
     <div className="min-h-screen grid-bg flex flex-col">
-      <div className="absolute inset-0 bg-navy-hero/70" />
+      <div className="absolute inset-0 bg-navy-hero/55" />
       <nav className="relative max-w-5xl w-full mx-auto px-6 py-6 flex items-center justify-between no-print">
         <Brand variant="white" />
         <Link to="/" className="text-sm text-white/70 hover:text-cyan-glow flex items-center gap-1" data-testid="back-home">

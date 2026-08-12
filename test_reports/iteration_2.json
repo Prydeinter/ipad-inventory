@@ -1,0 +1,30 @@
+{
+  "summary": "BUG-FIX verification: Verified all 5 target navy buttons now render with solid navy (#002D62) or navy.light background and white text. Verified admin login end-to-end, teacher pakta prefill (iPad Gen 7, F9FZ2BBBB03), public dashboard (Total iPad=5) and hero CTA. Tailwind duplicate colors key fix is effective.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "verification_results": {
+    "login-submit (Masuk)": "bg rgb(0,45,98) / color rgb(255,255,255) — VISIBLE ✓",
+    "validate-code-btn (Lanjutkan)": "bg rgb(14,51,116) navy.light / white text — VISIBLE ✓",
+    "submit-pakta-btn (Kirim & Tandatangani Pakta)": "bg rgb(0,45,98) / white — VISIBLE ✓",
+    "save-ipad-btn (Tambah iPad)": "bg rgb(0,45,98) / white — VISIBLE ✓",
+    "generate-codes-btn (Generate)": "bg rgb(0,45,98) / white — VISIBLE ✓ (Kode Akses tab)",
+    "hero-isi-pakta": "bg rgb(0,229,255) cyan.glow / rgb(0,45,98) navy text — VISIBLE ✓",
+    "admin_login_e2e": "PASS — reached /admin, dashboard loaded with 5 iPads / 4 Terdistribusi / 2 Kode Aktif / 5 Pakta",
+    "pakta_prefill": "PASS — form shows iPad Gen 7, F9FZ2BBBB03, dibeli 2021",
+    "dashboard": "PASS — hero renders, 5 Total iPad, charts + registry visible"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": ["Tailwind fix (single colors key with navy + cyan.glow merged via ...defaultColors.cyan spread) is correct and preserves default cyan palette."],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped as instructed)", "frontend": "100%"},
+  "test_credentials": "admin@aaiibs.sch.id / AAIIBS@2026; teacher code WSYQUN (NOT consumed — signature draw + submit skipped intentionally to avoid mutating state).",
+  "seed_data_creation": "None. No test data created; WSYQUN still 'aktif' after run.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Bug fix verified fully. All navy primary buttons visible. To avoid consuming single-use codes, submit-pakta was not fully executed; spare code Y4NVKN remains for future e2e tests."
+}

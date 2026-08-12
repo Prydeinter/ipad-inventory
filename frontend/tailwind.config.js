@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const defaultColors = require("tailwindcss/colors");
 module.exports = {
     darkMode: ["class"],
     content: [
@@ -12,16 +13,6 @@ module.exports = {
         body: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
-      colors: {
-        navy: {
-          DEFAULT: '#002D62',
-          light: '#1E3A8A',
-          hero: '#0A192F',
-        },
-        cyan: {
-          glow: '#00E5FF',
-        },
-      },
       boxShadow: {
         card: '0 2px 10px rgba(0,45,98,0.08)',
         glow: '0 0 0 3px rgba(0,229,255,0.25)',
@@ -32,6 +23,15 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)'
       },
       colors: {
+        navy: {
+          DEFAULT: '#002D62',
+          light: '#1E3A8A',
+          hero: '#0A192F',
+        },
+        cyan: {
+          ...defaultColors.cyan,
+          glow: '#00E5FF',
+        },
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

@@ -108,7 +108,7 @@ export default function PublicDashboard() {
     <div className="min-h-screen bg-[#F8FAFC]">
       {/* Hero */}
       <header className="grid-bg relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-hero/40 to-navy-hero/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-hero/80 via-navy-hero/30 to-transparent" />
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10">
           <nav className="flex items-center justify-between py-6 no-print">
             <Brand variant="white" />

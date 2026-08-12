@@ -49,7 +49,7 @@ export default function PaktaView() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <div className="grid-bg relative">
-        <div className="absolute inset-0 bg-navy-hero/80" />
+        <div className="absolute inset-0 bg-navy-hero/60" />
         <div className="relative max-w-3xl mx-auto px-6 py-6 flex items-center justify-between no-print">
           <Brand variant="white" />
           <Link to="/" className="text-sm text-white/70 hover:text-cyan-glow flex items-center gap-1" data-testid="pakta-back">
