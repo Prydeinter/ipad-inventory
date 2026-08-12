@@ -1,0 +1,154 @@
+{
+  "theme": "Institutional Futurism",
+  "description": "A pristine, high-contrast Light theme paired with Deep Navy (Al Azhar brand) and subtle glowing cyan accents. Blends the authoritative feel of an educational institution with an advanced, futuristic tech-asset dashboard.",
+  "typography": {
+    "headings": {
+      "family": "Outfit, sans-serif",
+      "weights": ["500", "700"],
+      "usage": "Used for all dashboard titles, chart headers, and token-entry screens. Must be tightly tracked (tracking-tight)."
+    },
+    "body": {
+      "family": "Plus Jakarta Sans, sans-serif",
+      "weights": ["400", "500"],
+      "usage": "Highly legible, geometric sans for data tables, form inputs, and UI text."
+    },
+    "mono": {
+      "family": "JetBrains Mono, monospace",
+      "usage": "Used for serial numbers, token codes, and data specific metrics."
+    },
+    "rules": [
+      "Never use Inter for headings.",
+      "H1 size max text-5xl.",
+      "Use tracking-[0.1em] for small uppercase labels (Overlines)."
+    ]
+  },
+  "colors": {
+    "background": {
+      "primary": "#F8FAFC",
+      "secondary": "#FFFFFF",
+      "navy_hero": "#0A192F"
+    },
+    "brand": {
+      "navy": "#002D62",
+      "navy_light": "#1E3A8A",
+      "cyan_glow": "#00E5FF"
+    },
+    "text": {
+      "primary": "#0F172A",
+      "secondary": "#475569",
+      "inverse": "#FFFFFF"
+    },
+    "status": {
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "lungsuran": "#8B5CF6"
+    },
+    "rules": [
+      "Use #0A192F for the admin login screen or hero background to establish authority.",
+      "For the futuristic dashboard vibe on a light theme, use white cards with very subtle slate borders (border-slate-200) and sharp shadow (shadow-sm).",
+      "Accentuate key metrics and token inputs with Cyan/Blue glow effects (ring-cyan-400/50)."
+    ]
+  },
+  "visual_enhancers": {
+    "surfaces": [
+      "The 'Crystal' Variant (Glassmorphism): Use backdrop-blur-xl bg-white/70 border border-white/40 for floating headers and sticky navs. NO purely transparent overlays.",
+      "The 'Grid' Variant: Expose the structural skeleton on the main public dashboard using border-collapse styles (border-r border-b border-slate-200) for bento grid items to look highly technical and futuristic."
+    ],
+    "shadows": [
+      "Use crisp, subtle layered shadows: shadow-[0_2px_10px_rgba(0,45,98,0.08)] for cards."
+    ],
+    "borders": [
+      "Max border radius 12px (rounded-xl). Keep it slightly sharp rather than overly bubbly."
+    ]
+  },
+  "layouts": {
+    "dashboard": {
+      "type": "High Density Bento Grid",
+      "spacing": "gap-4 or gap-6",
+      "structure": "grid-cols-1 md:grid-cols-4 lg:grid-cols-12",
+      "items": [
+        "Hero Stat (Total iPads): col-span-12 md:col-span-4 row-span-2",
+        "Distribution Chart: col-span-12 md:col-span-8 row-span-2",
+        "Lungsuran Traces (Timeline list): col-span-12 md:col-span-4 row-span-3",
+        "Recent Holders: col-span-12 md:col-span-8 row-span-3"
+      ]
+    },
+    "spacing_scale": {
+      "internal_padding": "p-6 or p-8 for cards",
+      "section_gap": "gap-12 or gap-16"
+    }
+  },
+  "components": {
+    "ui_library": "shadcn/ui (JavaScript variants)",
+    "icons": "lucide-react",
+    "charts": "recharts (for distribution by series/storage and year)",
+    "forms": "react-hook-form + zod (for admin panel and pakta form)",
+    "specific_features": [
+      {
+        "name": "Digital Signature",
+        "library": "react-signature-canvas",
+        "usage": "Used inside the Token-gated Pakta form for teachers to physically sign."
+      },
+      {
+        "name": "PDF Export",
+        "library": "jspdf & html2canvas",
+        "usage": "Generate F4 size PDF (210 x 330 mm) for the signed Pakta. Convert HTML to canvas, inject into jsPDF set to 'f4' dimensions."
+      },
+      {
+        "name": "Lungsuran Trace Visualization",
+        "usage": "Custom vertical timeline component. Use a left-bordered div with relative dots to show the chain of custody for a specific iPad serial number (e.g., Senior Teacher 2023 -> New Teacher 2024)."
+      },
+      {
+        "name": "Token Input Form",
+        "usage": "A highly stylized, centered 6-digit OTP-style input (or short text input) that reveals the specific teacher's pre-filled Pakta data."
+      }
+    ]
+  },
+  "motion": {
+    "transitions": "transition-all duration-300 ease-out (avoid 'all' on transforms, explicitly declare properties).",
+    "hover": "Subtle -translate-y-1 and ring-2 ring-brand-navy/20 on interactive cards.",
+    "entrance": "Staggered fade-up for dashboard grid items using framer-motion."
+  },
+  "accessibility": {
+    "contrast": "Ensure text meets APCA/WCAG AA standards. Navy text on white backgrounds.",
+    "testing": "All interactive elements MUST include a data-testid attribute (e.g., data-testid='submit-pakta-btn', data-testid='token-input').",
+    "motion": "Respect prefers-reduced-motion."
+  },
+  "image_urls": {
+    "hero_background": {
+      "url": "https://images.unsplash.com/photo-1625447521754-764d517239e6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTV8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBzY2hvb2wlMjBhcmNoaXRlY3R1cmV8ZW58MHx8fHwxNzg2NTcxODA0fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Modern school architecture, used with a heavy navy overlay for the admin login background.",
+      "category": "background"
+    },
+    "feature_ipad": {
+      "url": "https://images.unsplash.com/photo-1623126908029-58cb08a2b272?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwzfHxpcGFkJTIwZGVzayUyMG1vZGVybnxlbnwwfHx8fDE3ODY1NzE4MDR8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Modern iPad on a desk, used in the public dashboard header or empty states.",
+      "category": "asset"
+    },
+    "teacher_profile_placeholder": {
+      "url": "https://images.unsplash.com/photo-1543269664-56d93c1b41a6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwyfHx0ZWFjaGVyJTIwdXNpbmclMjB0YWJsZXR8ZW58MHx8fHwxNzg2NTcxODA0fDA&ixlib=rb-4.1.0&q=85",
+      "description": "Teacher using a tablet, useful for the Pakta success screen.",
+      "category": "illustration"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Build a Hybrid Fullstack app using React (JS) + FastAPI.",
+    "Public Dashboard (Route: /) must display charts using Recharts: iPad models, storage sizes, and lungsuran chains without requiring login.",
+    "Admin Area (Route: /admin) requires standard login. Admins can manage units, assign them, and generate token codes.",
+    "Pakta Entry (Route: /pakta) is a token-gated screen. The user enters their unique code, sees their pre-filled data, signs via react-signature-canvas, and submits.",
+    "PDF generation must strictly map to F4 size (210mm x 330mm). Use jspdf formatting { format: [210, 330] }.",
+    "No TSX files. Write purely in modern Javascript (.jsx / .js).",
+    "Use standard Tailwind classes. Do not create custom CSS unless absolutely necessary.",
+    "Ensure 'Al Azhar International Islamic Boarding School' navy branding feels central and official, not like a generic SaaS template."
+  ],
+  "universal_guidelines_for_main_agent": [
+    "Do not use generic centered layouts or uniform styling. Prioritize optical alignment and tension.",
+    "Create depth through layered design elements (z-index hierarchy).",
+    "Use glass-morphism effects (backdrop-blur-xl bg-white/70) but never purely transparent overlays.",
+    "Never apply 'transition: all'. Explicitly state transition properties.",
+    "Never center-align the main app container. Let content flow naturally.",
+    "Avoid emoji characters for icons; rely strictly on lucide-react.",
+    "Use 2-3x more spacing than usual for a premium feel (e.g., p-8 instead of p-4).",
+    "All interactive elements MUST have data-testid attributes."
+  ]
+}
