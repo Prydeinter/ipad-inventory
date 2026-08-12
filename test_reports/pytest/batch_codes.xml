@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="6" time="2.557" timestamp="2026-08-12T23:30:27.541981+00:00" hostname="agent-env-964e2b9e-8a1d-40af-ac14-f6333bee2d49"><testcase classname="tests.test_batch_codes" name="test_batch_two_serials_count_two" time="1.106" /><testcase classname="tests.test_batch_codes" name="test_batch_unknown_serial_ignored" time="0.260" /><testcase classname="tests.test_batch_codes" name="test_batch_empty_serials" time="0.151" /><testcase classname="tests.test_batch_codes" name="test_batch_requires_auth" time="0.135" /><testcase classname="tests.test_batch_codes" name="test_single_code_endpoint_still_works" time="0.246" /><testcase classname="tests.test_batch_codes" name="test_final_state_only_one_active_code" time="0.112"><failure message="AssertionError: assert 'Y4NVKN' == 'WSYQUN'&#10;  &#10;  - WSYQUN&#10;  + Y4NVKN">backend/tests/test_batch_codes.py:78: in test_final_state_only_one_active_code
+    assert active[0]["code"] == "WSYQUN"
+E   AssertionError: assert 'Y4NVKN' == 'WSYQUN'
+E     
+E     - WSYQUN
+E     + Y4NVKN</failure></testcase></testsuite></testsuites>

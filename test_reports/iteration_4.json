@@ -1,0 +1,39 @@
+{
+  "summary": "Verified new admin 'Kode Akses' features: batch code generation (backend) + searchable multi-select iPad picker with chips/select-all/clear + end-to-end batch flow with cleanup. 5/5 functional backend tests pass, all frontend flows pass, demo state restored (5 iPads, 1 active code).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "verification_results": {
+    "POST /api/admin/codes/batch (2 serials x count=2)": "ipad_count=2, code_count=4, not_found=[] ✓",
+    "POST /api/admin/codes/batch (unknown serial mixed)": "unknown moved to not_found, valid still generated ✓",
+    "POST /api/admin/codes/batch (empty)": "400 ✓",
+    "POST /api/admin/codes/batch (no auth)": "401 ✓",
+    "POST /api/admin/codes (single, regression)": "200 with count codes ✓",
+    "Frontend tab-codes -> code-ipad-multiselect -> ipad-dropdown": "opens ✓",
+    "ipad-dropdown-search 'F9FZ'": "filters to F9FZ2BBBB03 and F9FZ2BBBB04 only ✓",
+    "Multi-select 2 iPads": "trigger shows '2 iPad dipilih', chips visible ✓",
+    "select-all-ipads": "trigger shows '5 iPad dipilih' ✓",
+    "clear-ipads": "trigger reverts to '— pilih iPad —' ✓",
+    "End-to-end batch generate 2 iPads x count=2": "4 new codes appeared, toast 'Kode dihapus' visible after cleanup ✓",
+    "Cleanup": "All 4 test-generated codes deleted via delete-code-{code}; final active code count = 1 (Y4NVKN) ✓",
+    "code-list-search 'F9FZ'": "filters correctly ✓",
+    "Note about seed": "Review request stated demo active code = WSYQUN, actual demo is Y4NVKN (F9FZ2BBBB03 target). Still exactly 1 active code, so demo state is correct."
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_batch_codes.py",
+    "/app/test_reports/pytest/batch_codes.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Batch endpoint deduplicates serials via set() before generating (defensive & correct).",
+    "_gen_codes_for_ipad caps count at 20 - good safeguard for accidental huge inputs.",
+    "IpadMultiSelect handles click-outside-to-close correctly; autofocus on search is a nice UX touch.",
+    "Minor UX: batch endpoint returns 200 even if all serials are not_found (ipad_count=0). Consider surfacing a warning toast on frontend when code_count=0."
+  ],
+  "updated_files": ["/app/backend/tests/test_batch_codes.py", "/app/test_reports/iteration_4.json"],
+  "success_rate": {"backend": "100% (5/5 functional)", "frontend": "100%"},
+  "test_credentials": "admin@aaiibs.sch.id / AAIIBS@2026",
+  "seed_data_creation": "Created 4 batch codes + 1 single code + 1 unknown-serial test code + 1 mixed-batch code; all deleted. Final DB state: 5 demo iPads, 1 active code (Y4NVKN), 6 paktas — unchanged from before test run.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Batch generation feature fully working. Actual seed active code is Y4NVKN (not WSYQUN as stated in review request) — WSYQUN in the UI screenshot is 'terpakai' (used). Only 1 code is 'aktif': Y4NVKN."
+}

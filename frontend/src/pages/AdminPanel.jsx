@@ -10,6 +10,7 @@ import api, { formatApiError } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { Brand } from "../components/Brand";
 import BarcodeScanner from "../components/BarcodeScanner";
+import IpadMultiSelect from "../components/IpadMultiSelect";
 
 const fmtDate = (iso) => {
   if (!iso) return "-";
@@ -106,16 +107,25 @@ export default function AdminPanel() {
   };
 
   // ---- code gen ----
-  const [codeForm, setCodeForm] = useState({ serial_number: "", target_name: "", count: 1 });
+  const [codeForm, setCodeForm] = useState({ serials: [], target_name: "", count: 1 });
   const [genLoading, setGenLoading] = useState(false);
 
   const genCodes = async () => {
-    if (!codeForm.serial_number) return toast.error("Pilih iPad terlebih dahulu");
+    if (!codeForm.serials.length) return toast.error("Pilih minimal satu iPad");
     setGenLoading(true);
     try {
-      const { data } = await api.post("/admin/codes", { ...codeForm, count: Number(codeForm.count) });
-      toast.success(`${data.length} kode berhasil dibuat`);
-      setCodeForm({ serial_number: "", target_name: "", count: 1 }); load();
+      const { data } = await api.post("/admin/codes/batch", {
+        serial_numbers: codeForm.serials,
+        target_name: codeForm.target_name,
+        count: Number(codeForm.count),
+      });
+      if (data.code_count === 0) {
+        toast.warning("Tidak ada kode dibuat. Periksa iPad yang dipilih.");
+      } else {
+        toast.success(`${data.code_count} kode dibuat untuk ${data.ipad_count} iPad`);
+      }
+      setCodeForm({ serials: [], target_name: "", count: 1 });
+      load();
     } catch (e) { toast.error(formatApiError(e.response?.data?.detail)); }
     finally { setGenLoading(false); }
   };
@@ -307,20 +317,25 @@ export default function AdminPanel() {
               <h3 className="font-heading font-semibold text-navy mb-4">Generate Kode Akses</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Pilih iPad (serial)</label>
-                  <select data-testid="code-ipad-select" value={codeForm.serial_number} onChange={(e) => setCodeForm({ ...codeForm, serial_number: e.target.value })} className={inputCls}>
-                    <option value="">— pilih iPad —</option>
-                    {ipads.map((ip) => <option key={ip.id} value={ip.serial_number}>{ip.serial_number} · {ip.version} {ip.storage}</option>)}
-                  </select>
+                  <label className="text-xs font-medium text-slate-500">Pilih iPad (bisa lebih dari satu)</label>
+                  <IpadMultiSelect
+                    ipads={ipads}
+                    selected={codeForm.serials}
+                    onChange={(serials) => setCodeForm({ ...codeForm, serials })}
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-medium text-slate-500">Nama Tujuan (opsional)</label>
                   <input data-testid="code-target" value={codeForm.target_name} onChange={(e) => setCodeForm({ ...codeForm, target_name: e.target.value })} className={inputCls} placeholder="Nama guru penerima" />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-500">Jumlah Kode</label>
+                  <label className="text-xs font-medium text-slate-500">Jumlah Kode per iPad</label>
                   <input data-testid="code-count" type="number" min="1" max="20" value={codeForm.count} onChange={(e) => setCodeForm({ ...codeForm, count: e.target.value })} className={inputCls} />
-                  <p className="text-[11px] text-slate-400 mt-1">Buat beberapa kode sekaligus untuk pengisian bersama.</p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    {codeForm.serials.length > 0
+                      ? `Akan dibuat ${codeForm.serials.length * (Number(codeForm.count) || 0)} kode (${codeForm.serials.length} iPad × ${codeForm.count}).`
+                      : "Buat beberapa kode sekaligus untuk banyak iPad."}
+                  </p>
                 </div>
                 <button data-testid="generate-codes-btn" onClick={genCodes} disabled={genLoading} className="w-full bg-navy text-white font-semibold py-3 rounded-lg hover:bg-navy-light transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-60">
                   {genLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <><KeyRound className="h-4 w-4" /> Generate</>}

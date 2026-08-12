@@ -100,6 +100,12 @@ class CodeInput(BaseModel):
     count: int = 1
 
 
+class BatchCodeInput(BaseModel):
+    serial_numbers: List[str]
+    target_name: Optional[str] = ""
+    count: int = 1
+
+
 class ValidateInput(BaseModel):
     code: str
 
@@ -284,7 +290,11 @@ async def create_codes(body: CodeInput, admin: dict = Depends(get_current_admin)
     ipad = await db.ipads.find_one({"serial_number": body.serial_number.strip().upper()})
     if not ipad:
         raise HTTPException(status_code=404, detail="iPad tidak ditemukan")
-    count = max(1, min(body.count, 20))
+    return await _gen_codes_for_ipad(ipad, body.count, body.target_name)
+
+
+async def _gen_codes_for_ipad(ipad, count, target_name):
+    count = max(1, min(int(count), 20))
     created = []
     for _ in range(count):
         code = gen_code()
@@ -294,7 +304,7 @@ async def create_codes(body: CodeInput, admin: dict = Depends(get_current_admin)
             "id": str(uuid.uuid4()), "code": code,
             "serial_number": ipad["serial_number"], "version": ipad["version"],
             "storage": ipad["storage"], "purchase_year": ipad["purchase_year"],
-            "target_name": (body.target_name or "").strip(),
+            "target_name": (target_name or "").strip(),
             "status": "active", "used_by": None,
             "created_at": now_iso(), "used_at": None,
         }
@@ -302,6 +312,22 @@ async def create_codes(body: CodeInput, admin: dict = Depends(get_current_admin)
         doc.pop("_id", None)
         created.append(doc)
     return created
+
+
+@api.post("/admin/codes/batch")
+async def create_codes_batch(body: BatchCodeInput, admin: dict = Depends(get_current_admin)):
+    serials = list({s.strip().upper() for s in body.serial_numbers if s and s.strip()})
+    if not serials:
+        raise HTTPException(status_code=400, detail="Pilih minimal satu iPad")
+    created, not_found = [], []
+    for serial in serials:
+        ipad = await db.ipads.find_one({"serial_number": serial})
+        if not ipad:
+            not_found.append(serial)
+            continue
+        created.extend(await _gen_codes_for_ipad(ipad, body.count, body.target_name))
+    return {"created": created, "ipad_count": len(serials) - len(not_found),
+            "code_count": len(created), "not_found": not_found}
 
 
 @api.get("/admin/codes")
