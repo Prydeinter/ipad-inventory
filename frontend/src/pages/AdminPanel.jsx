@@ -4,10 +4,12 @@ import { toast } from "sonner";
 import {
   Tablet, KeyRound, FileText, Plus, Trash2, LogOut, Copy, Loader2,
   Pencil, X, ExternalLink, CheckCircle2, Repeat, Users, LayoutDashboard,
+  ScanLine, Upload, Download, Search, FileSpreadsheet,
 } from "lucide-react";
 import api, { formatApiError } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { Brand } from "../components/Brand";
+import BarcodeScanner from "../components/BarcodeScanner";
 
 const fmtDate = (iso) => {
   if (!iso) return "-";
@@ -37,6 +39,45 @@ export default function AdminPanel() {
   const [ipadForm, setIpadForm] = useState(emptyIpad);
   const [editingId, setEditingId] = useState(null);
   const [savingIpad, setSavingIpad] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [ipadSearch, setIpadSearch] = useState("");
+  const [codeSearch, setCodeSearch] = useState("");
+
+  const downloadTemplate = async () => {
+    try {
+      const res = await api.get("/admin/ipads/template", { responseType: "blob" });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "template_import_ipad.xlsx";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast.error("Gagal mengunduh template");
+    }
+  };
+
+  const onUploadExcel = async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setImporting(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", f);
+      const { data } = await api.post("/admin/ipads/bulk", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success(`${data.created} iPad ditambahkan, ${data.skipped} dilewati (duplikat)`);
+      if (data.errors?.length) toast.warning(`${data.errors.length} baris bermasalah: ${data.errors[0]}`);
+      load();
+    } catch (err) {
+      toast.error(formatApiError(err.response?.data?.detail));
+    } finally {
+      setImporting(false);
+      e.target.value = "";
+    }
+  };
 
   const submitIpad = async () => {
     if (!ipadForm.serial_number.trim() || !ipadForm.version.trim())
@@ -91,6 +132,14 @@ export default function AdminPanel() {
   };
 
   const doLogout = async () => { await logout(); nav("/"); };
+
+  const filteredIpads = ipads.filter((ip) =>
+    ip.serial_number.toLowerCase().includes(ipadSearch.trim().toLowerCase())
+  );
+  const filteredCodes = codes.filter((c) => {
+    const q = codeSearch.trim().toLowerCase();
+    return c.serial_number.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
+  });
 
   const stats = [
     { icon: Tablet, label: "Total iPad", value: ipads.length },
@@ -165,7 +214,12 @@ export default function AdminPanel() {
               <div className="space-y-3">
                 <div>
                   <label className="text-xs font-medium text-slate-500">Serial Number</label>
-                  <input data-testid="ipad-serial" value={ipadForm.serial_number} onChange={(e) => setIpadForm({ ...ipadForm, serial_number: e.target.value })} className={`${inputCls} font-mono`} placeholder="e.g. DMPGXXXXXXXX" />
+                  <div className="flex gap-2">
+                    <input data-testid="ipad-serial" value={ipadForm.serial_number} onChange={(e) => setIpadForm({ ...ipadForm, serial_number: e.target.value })} className={`${inputCls} font-mono`} placeholder="e.g. DMPGXXXXXXXX" />
+                    <button type="button" data-testid="scan-barcode-btn" onClick={() => setScannerOpen(true)} title="Scan barcode dengan kamera" className="shrink-0 px-3 rounded-lg bg-navy/10 text-navy hover:bg-cyan-glow hover:text-navy transition-colors duration-200 flex items-center justify-center">
+                      <ScanLine className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="text-xs font-medium text-slate-500">Versi iPad</label>
@@ -190,12 +244,40 @@ export default function AdminPanel() {
                 <button data-testid="save-ipad-btn" onClick={submitIpad} disabled={savingIpad} className="w-full bg-navy text-white font-semibold py-3 rounded-lg hover:bg-navy-light transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-60">
                   {savingIpad ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Plus className="h-4 w-4" /> {editingId ? "Simpan" : "Tambah iPad"}</>}
                 </button>
+
+                <div className="pt-4 mt-2 border-t border-slate-100">
+                  <div className="flex items-center gap-2 text-navy mb-2">
+                    <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+                    <span className="text-sm font-heading font-semibold">Import Massal (Excel)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mb-3">Tambah banyak unit sekaligus. Unduh template, isi, lalu unggah.</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button type="button" data-testid="download-template-btn" onClick={downloadTemplate} className="flex items-center justify-center gap-1.5 text-sm font-medium text-navy border border-slate-200 rounded-lg py-2.5 hover:bg-slate-50 transition-colors duration-200">
+                      <Download className="h-4 w-4" /> Template
+                    </button>
+                    <label data-testid="upload-excel-label" className="flex items-center justify-center gap-1.5 text-sm font-medium text-white bg-emerald-600 rounded-lg py-2.5 hover:bg-emerald-700 transition-colors duration-200 cursor-pointer">
+                      {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Upload className="h-4 w-4" /> Unggah</>}
+                      <input data-testid="upload-excel-input" type="file" accept=".xlsx,.xlsm" className="hidden" onChange={onUploadExcel} disabled={importing} />
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="lg:col-span-2 space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  data-testid="ipad-list-search"
+                  value={ipadSearch}
+                  onChange={(e) => setIpadSearch(e.target.value)}
+                  placeholder="Cari serial number..."
+                  className="pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm w-full bg-white focus:outline-none focus:ring-2 focus:ring-cyan-glow/50"
+                />
+              </div>
               {ipads.length === 0 && <div className="bg-white rounded-xl border border-slate-200 p-10 text-center text-slate-400">Belum ada iPad. Tambahkan di sebelah kiri.</div>}
-              {ipads.map((ip) => (
+              {ipads.length > 0 && filteredIpads.length === 0 && <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400">Tidak ada serial yang cocok.</div>}
+              {filteredIpads.map((ip) => (
                 <div key={ip.id} data-testid={`admin-ipad-${ip.serial_number}`} className="bg-white rounded-xl border border-slate-200 shadow-card p-5 flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -247,8 +329,19 @@ export default function AdminPanel() {
             </div>
 
             <div className="lg:col-span-2 space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <input
+                  data-testid="code-list-search"
+                  value={codeSearch}
+                  onChange={(e) => setCodeSearch(e.target.value)}
+                  placeholder="Cari serial number atau kode..."
+                  className="pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 text-sm w-full bg-white focus:outline-none focus:ring-2 focus:ring-cyan-glow/50"
+                />
+              </div>
               {codes.length === 0 && <div className="bg-white rounded-xl border border-slate-200 p-10 text-center text-slate-400">Belum ada kode.</div>}
-              {codes.map((c) => (
+              {codes.length > 0 && filteredCodes.length === 0 && <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-400">Tidak ada kode yang cocok.</div>}
+              {filteredCodes.map((c) => (
                 <div key={c.id} data-testid={`admin-code-${c.code}`} className="bg-white rounded-xl border border-slate-200 shadow-card p-4 flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -302,6 +395,17 @@ export default function AdminPanel() {
           </div>
         )}
       </main>
+
+      {scannerOpen && (
+        <BarcodeScanner
+          onDetect={(code) => {
+            setIpadForm((f) => ({ ...f, serial_number: code.toUpperCase() }));
+            setScannerOpen(false);
+            toast.success(`Serial terbaca: ${code.toUpperCase()}`);
+          }}
+          onClose={() => setScannerOpen(false)}
+        />
+      )}
     </div>
   );
 }

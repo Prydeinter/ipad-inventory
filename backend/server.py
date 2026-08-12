@@ -5,6 +5,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
 import os
+import io
 import logging
 import secrets
 import string
@@ -14,11 +15,12 @@ from typing import List, Optional
 import bcrypt
 import jwt
 from bson import ObjectId
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Depends, UploadFile, File
 from fastapi.responses import Response
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr
+from openpyxl import Workbook, load_workbook
 import uuid
 
 from pdf_pakta import build_pakta_pdf
@@ -212,6 +214,68 @@ async def delete_ipad(ipad_id: str, admin: dict = Depends(get_current_admin)):
 @api.get("/admin/ipads")
 async def admin_list_ipads(admin: dict = Depends(get_current_admin)):
     return await _ipads_with_holders()
+
+
+IMPORT_HEADERS = ["serial_number", "version", "storage", "purchase_year", "color", "notes"]
+
+
+@api.get("/admin/ipads/template")
+async def ipad_template(admin: dict = Depends(get_current_admin)):
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "iPad"
+    ws.append(IMPORT_HEADERS)
+    ws.append(["DMPGX1AAAA01", "iPad Gen 10", "256GB", 2026, "Silver", "unit baru"])
+    ws.append(["F9FZ2BBBB03", "iPad Gen 7", "32GB", 2021, "Space Gray", "lungsuran"])
+    for i, col in enumerate(["A", "B", "C", "D", "E", "F"]):
+        ws.column_dimensions[col].width = [18, 16, 12, 14, 14, 24][i]
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return Response(
+        content=buf.read(),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="template_import_ipad.xlsx"'},
+    )
+
+
+@api.post("/admin/ipads/bulk")
+async def bulk_import_ipads(file: UploadFile = File(...), admin: dict = Depends(get_current_admin)):
+    if not file.filename.lower().endswith((".xlsx", ".xlsm")):
+        raise HTTPException(status_code=400, detail="File harus berformat Excel (.xlsx)")
+    try:
+        wb = load_workbook(io.BytesIO(await file.read()), read_only=True, data_only=True)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Gagal membaca file Excel")
+    ws = wb.active
+    rows = list(ws.iter_rows(values_only=True))
+    created, skipped, errors = 0, 0, []
+    for idx, row in enumerate(rows[1:], start=2):
+        if not row or all(c is None or str(c).strip() == "" for c in row):
+            continue
+        cells = list(row) + [None] * (6 - len(row))
+        serial = str(cells[0]).strip().upper() if cells[0] else ""
+        version = str(cells[1]).strip() if cells[1] else ""
+        storage = str(cells[2]).strip() if cells[2] else ""
+        try:
+            year = int(float(cells[3])) if cells[3] not in (None, "") else 0
+        except (ValueError, TypeError):
+            year = 0
+        color = str(cells[4]).strip() if cells[4] else ""
+        notes = str(cells[5]).strip() if cells[5] else ""
+        if not serial or not version or not storage or not year:
+            errors.append(f"Baris {idx}: serial/versi/penyimpanan/tahun wajib diisi")
+            continue
+        if await db.ipads.find_one({"serial_number": serial}):
+            skipped += 1
+            continue
+        await db.ipads.insert_one({
+            "id": str(uuid.uuid4()), "serial_number": serial, "version": version,
+            "storage": storage, "purchase_year": year, "color": color,
+            "notes": notes, "created_at": now_iso(),
+        })
+        created += 1
+    return {"created": created, "skipped": skipped, "errors": errors[:20]}
 
 
 # ---------------------------------------------------------------- code admin routes
