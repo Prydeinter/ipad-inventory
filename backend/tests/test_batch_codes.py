@@ -3,7 +3,7 @@ import os
 import requests
 import pytest
 
-BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") if os.environ.get("REACT_APP_BACKEND_URL") else "https://aaiibs-device-mgmt.preview.emergentagent.com"
+BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") if os.environ.get("REACT_APP_BACKEND_URL") else "https://tahfiz-tracker-6.preview.emergentagent.com"
 API = f"{BASE_URL}/api"
 ADMIN_EMAIL = "admin@aaiibs.sch.id"
 ADMIN_PASS = "AAIIBS@2026"
