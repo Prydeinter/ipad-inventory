@@ -144,8 +144,8 @@ export default function PublicDashboard() {
                 <span className="text-cyan-glow">Al Azhar IIBS</span>
               </h1>
               <p className="mt-5 text-white/70 text-base sm:text-lg max-w-xl">
-                Transparansi penuh distribusi perangkat: dari tahun perolehan, pemegang aktif,
-                hingga jejak lungsuran antar guru. Terbuka untuk dilihat, terkunci dari perubahan.
+                Rekap distribusi iPad sekolah secara transparan: tahun perolehan,
+                pemegang aktif, dan riwayat perpindahan antar guru.
               </p>
               <div className="mt-8 flex flex-wrap gap-3 no-print">
                 <Link
