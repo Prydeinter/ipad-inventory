@@ -223,6 +223,18 @@ Kalau mas mau ganti environment variable (misal ganti password admin), masuk ke 
 
 ## Bagian 6. Kalau Ada Masalah
 
+### Deploy Vercel error "Project framework is set to services, but no services are declared"
+
+Ini terjadi kalau repo mas sebelumnya pernah pakai template Emergent, dan Vercel menyimpan setting framework sebagai "services" (bukan format Vercel resmi).
+
+Fix:
+
+1. Pastikan file vercel.json di repo mas sudah versi terbaru (yang punya key buildCommand, functions, dan rewrites, BUKAN key services)
+2. Kalau vercel.json sudah benar tapi error tetap muncul, itu artinya Vercel cache setting project lama. Buka Vercel Dashboard, pilih project yang error, masuk Settings, General, cari section Framework Preset, ganti dari services ke Other, klik Save
+3. Balik ke tab Deployments, klik menu tiga titik di deployment paling atas, klik Redeploy
+
+Setelah redeploy, error harusnya hilang dan deploy sukses.
+
 ### Login gagal dengan pesan "Terjadi kesalahan"
 
 Cek dulu /api/health dan /api/health/db seperti di Langkah 4.1 dan 4.2. Biasanya ini bermasalah karena environment variable salah atau MongoDB tidak terhubung.
