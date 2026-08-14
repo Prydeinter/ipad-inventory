@@ -1,15 +1,29 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd frontend && yarn install --frozen-lockfile && yarn build",
-  "outputDirectory": "frontend/build",
-  "installCommand": "echo skip",
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 60,
-      "includeFiles": "api/assets/**"
-    }
-  },
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index" }
-  ]
+    "services": {
+        "frontend": {
+            "root": "frontend",
+            "framework": "create-react-app"
+        },
+        "backend": {
+            "root": "backend",
+            "framework": "fastapi",
+            "entrypoint": "server.py"
+        }
+    },
+    "rewrites": [
+        {
+            "source": "/api(/.*)?",
+            "destination": {
+                "type": "service",
+                "service": "backend"
+            }
+        },
+        {
+            "source": "/(.*)",
+            "destination": {
+                "type": "service",
+                "service": "frontend"
+            }
+        }
+    ]
 }
