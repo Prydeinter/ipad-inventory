@@ -1,12 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
   "buildCommand": "cd frontend && yarn install --frozen-lockfile && yarn build",
   "outputDirectory": "frontend/build",
   "installCommand": "echo skip",
   "functions": {
     "api/index.py": {
       "maxDuration": 60,
-      "includeFiles": "api/assets/**"
+      "includeFiles": "api/**"
     }
   },
   "rewrites": [
