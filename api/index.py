@@ -2,6 +2,14 @@
 Semua route /api/* di-route ke sini via vercel.json.
 """
 import os
+import sys
+
+# Force include folder api/ ke sys.path supaya sibling file (pdf_pakta.py)
+# bisa di-import di Vercel serverless runtime yang tidak auto-set script dir.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
 import io
 import logging
 import secrets
