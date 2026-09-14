@@ -155,7 +155,7 @@ export default function PaktaEntry() {
                 <SignatureCanvas
                   ref={sigRef}
                   penColor="#0F172A"
-                  canvasProps={{ className: "sig-canvas w-full", height: 180, "data-testid": "signature-canvas" }}
+                  canvasProps={{ className: "sig-canvas w-full", height: 300, "data-testid": "signature-canvas" }}
                 />
               </div>
               <p className="text-xs text-slate-400 mt-1">Tanda tangani menggunakan jari (iPad) atau mouse.</p>
