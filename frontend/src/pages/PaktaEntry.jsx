@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useLayoutEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "sonner";
@@ -11,6 +11,19 @@ const todayISO = () => new Date().toISOString().slice(0, 10);
 export default function PaktaEntry() {
   const nav = useNavigate();
   const sigRef = useRef(null);
+  const wrapRef = useRef(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 600, height: 220 });
+  
+  useLayoutEffect(() => {
+    const resize = () => {
+      if (wrapRef.current) {
+        setCanvasSize({ width: wrapRef.current.clientWidth, height: 220 });
+      }
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
   const [step, setStep] = useState(1);
   const [code, setCode] = useState("");
   const [info, setInfo] = useState(null);
@@ -151,16 +164,14 @@ export default function PaktaEntry() {
                   <Eraser className="h-3.5 w-3.5" /> Hapus
                 </button>
               </div>
-              <div className="mt-2 w-full overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50">
+              <div ref={wrapRef} className="mt-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 overflow-hidden">
                 <SignatureCanvas
                   ref={sigRef}
                   penColor="#0F172A"
-                  minWidth={1}
-                  maxWidth={2.5}
                   canvasProps={{
-                    className: "sig-canvas block",
-                    width: 760,
-                    height: 300,
+                    className: "sig-canvas",
+                    width: canvasSize.width,
+                    height: canvasSize.height,
                     "data-testid": "signature-canvas",
                   }}
                 />
