@@ -151,11 +151,18 @@ export default function PaktaEntry() {
                   <Eraser className="h-3.5 w-3.5" /> Hapus
                 </button>
               </div>
-              <div className="mt-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 overflow-hidden">
+              <div className="mt-2 w-full overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50">
                 <SignatureCanvas
                   ref={sigRef}
                   penColor="#0F172A"
-                  canvasProps={{ className: "sig-canvas w-full", height: 300, "data-testid": "signature-canvas" }}
+                  minWidth={1}
+                  maxWidth={2.5}
+                  canvasProps={{
+                    className: "sig-canvas block",
+                    width: 760,
+                    height: 300,
+                    "data-testid": "signature-canvas",
+                  }}
                 />
               </div>
               <p className="text-xs text-slate-400 mt-1">Tanda tangani menggunakan jari (iPad) atau mouse.</p>
