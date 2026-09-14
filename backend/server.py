@@ -197,11 +197,25 @@ async def update_ipad(ipad_id: str, body: IpadInput, admin: dict = Depends(get_c
     clash = await db.ipads.find_one({"serial_number": serial, "id": {"$ne": ipad_id}})
     if clash:
         raise HTTPException(status_code=400, detail="Serial number sudah dipakai iPad lain")
+
     await db.ipads.update_one({"id": ipad_id}, {"$set": {
         "serial_number": serial, "version": body.version.strip(), "storage": body.storage.strip(),
         "purchase_year": body.purchase_year, "color": (body.color or "").strip(),
         "notes": (body.notes or "").strip(),
     }})
+
+    # Sinkronkan ke kode akses yang MASIH AKTIF (belum dipakai user).
+    # Cari pakai serial LAMA (existing), karena serial_number sendiri bisa ikut diedit.
+    # Kode yang sudah "used" TIDAK ikut disentuh -> pakta yang sudah terbit tetap terkunci.
+    await db.codes.update_many(
+        {"serial_number": existing["serial_number"], "status": "active"},
+        {"$set": {
+            "serial_number": serial,
+            "version": body.version.strip(),
+            "storage": body.storage.strip(),
+            "purchase_year": body.purchase_year,
+        }},
+    )
     return {"ok": True}
 
 
