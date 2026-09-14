@@ -181,31 +181,35 @@ def build_pakta_pdf(p: dict) -> bytes:
 
     # signature block
     sig_top = max(y - 6 * mm, 78 * mm)
-    right_x = PAGE_W - MARGIN - 62 * mm
+right_x = PAGE_W - MARGIN - 85 * mm
     c.setFillColor(HexColor("#0F172A"))
     c.setFont("Helvetica", 11)
     c.drawString(right_x, sig_top, f"Karanganyar, {_fmt_date(p.get('tanggal_pengisian',''))}")
 
     sig_data = p.get("signature", "")
-    sig_y = sig_top - 32 * mm
-    if sig_data and "," in sig_data:
-        try:
-            raw = base64.b64decode(sig_data.split(",", 1)[1])
-            img = ImageReader(io.BytesIO(raw))
-            c.drawImage(img, right_x, sig_y, width=52 * mm, height=26 * mm,
-                        mask="auto", preserveAspectRatio=True)
-        except Exception:
-            pass
-
-    c.setStrokeColor(SLATE)
-    c.setLineWidth(0.8)
-    c.line(right_x, sig_y - 2 * mm, right_x + 58 * mm, sig_y - 2 * mm)
-    c.setFillColor(NAVY)
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(right_x, sig_y - 9 * mm, p.get("nama", ""))
-    c.setFillColor(SLATE)
-    c.setFont("Helvetica", 9.5)
-    c.drawString(right_x, sig_y - 15 * mm, f"NIK. {p.get('nik','')}")
+         sig_y = sig_top - 32 * mm            # posisi garis & nama tetap di sini (tidak berubah)
+         sig_w, sig_h = 78 * mm, 38 * mm       # diperbesar dari 52x26 -> 78x38
+         
+         if sig_data and "," in sig_data:
+             try:
+                 raw = base64.b64decode(sig_data.split(",", 1)[1])
+                 img = ImageReader(io.BytesIO(raw))
+                 # bottom gambar tetap di sig_y, tapi karena lebih tinggi (38mm),
+                 # bagian atasnya otomatis naik dan menindih baris tanggal (sig_top)
+                 c.drawImage(img, right_x, sig_y, width=sig_w, height=sig_h,
+                             mask="auto", preserveAspectRatio=True)
+             except Exception:
+                 pass
+         
+         c.setStrokeColor(SLATE)
+         c.setLineWidth(0.8)
+         c.line(right_x, sig_y - 2 * mm, right_x + 78 * mm, sig_y - 2 * mm)   # garis dilebarkan ikut 78mm
+         c.setFillColor(NAVY)
+         c.setFont("Helvetica-Bold", 11)
+         c.drawString(right_x, sig_y - 9 * mm, p.get("nama", ""))
+         c.setFillColor(SLATE)
+         c.setFont("Helvetica", 9.5)
+         c.drawString(right_x, sig_y - 15 * mm, f"NIK. {p.get('nik','')}")
 
     c.setFillColor(LIGHT)
     c.setFont("Helvetica", 8)
